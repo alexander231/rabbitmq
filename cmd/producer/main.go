@@ -50,14 +50,16 @@ func main() {
 	// Create context to manage timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	// Create customer from sweden
-	err = client.Send(ctx, "customer_events", "customers.created.se", amqp091.Publishing{
-		ContentType:  "text/plain",       // The payload we send is plaintext, could be JSON or others..
-		DeliveryMode: amqp091.Persistent, // This tells rabbitMQ that this message should be Saved if no resources accepts it before a restart (durable)
-		Body:         []byte("An cool message between services"),
-	})
-	failOnError(err, "failedd to send message to customers_events exchange")
 
+	// Create customer from sweden
+	for i := 0; i <= 10; i++ {
+		err = client.Send(ctx, "customer_events", "customers.created.se", amqp091.Publishing{
+			ContentType:  "text/plain",       // The payload we send is plaintext, could be JSON or others..
+			DeliveryMode: amqp091.Persistent, // This tells rabbitMQ that this message should be Saved if no resources accepts it before a restart (durable)
+			Body:         []byte("An cool message between services"),
+		})
+		failOnError(err, "failedd to send message to customers_events exchange")
+	}
 	err = client.Send(ctx, "customer_events", "customers.test", amqp091.Publishing{
 		ContentType:  "text/plain",
 		DeliveryMode: amqp091.Transient, // This tells rabbitMQ that this message can be deleted if no resources accepts it before a restart (non durable)

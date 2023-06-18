@@ -65,7 +65,7 @@ func main() {
 			// Spawn a worker
 			msg := message
 			g.Go(func() error {
-				log.Printf("New Message: %v", msg)
+				log.Printf("New Message: %v", string(msg.Body))
 
 				time.Sleep(10 * time.Second)
 				// Multiple means that we acknowledge a batch of messages, leave false for now
