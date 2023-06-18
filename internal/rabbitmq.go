@@ -56,9 +56,13 @@ func (rc RabbitMQClient) Close() error {
 }
 
 // CreateQueue will create a new queue based on given cfgs
-func (rc RabbitMQClient) CreateQueue(queueName string, durable, autodelete bool) error {
-	_, err := rc.ch.QueueDeclare(queueName, durable, autodelete, false, false, nil)
-	return err
+func (rc RabbitMQClient) CreateQueue(queueName string, durable, autodelete bool) (amqp.Queue, error) {
+	q, err := rc.ch.QueueDeclare(queueName, durable, autodelete, false, false, nil)
+	if err != nil {
+		return amqp.Queue{}, nil
+	}
+
+	return q, nil
 }
 
 // CreateBinding is used to connect a queue to an Exchange using the binding rule

@@ -30,7 +30,19 @@ func main() {
 		panic(err)
 	}
 
-	messageBus, err := mqClient.Consume("customers_created", "email-service", false)
+	// Create Unnamed Queue which will generate a random name, set AutoDelete to True
+	queue, err := mqClient.CreateQueue("", true, true)
+	if err != nil {
+		panic(err)
+	}
+
+	// Create binding between the customer_events exchange and the new Random Queue
+	// Can skip Binding key since fanout will skip that rule
+	if err := mqClient.CreateBinding(queue.Name, "", "customer_events"); err != nil {
+		panic(err)
+	}
+
+	messageBus, err := mqClient.Consume(queue.Name, "email-service", false)
 	if err != nil {
 		panic(err)
 	}
