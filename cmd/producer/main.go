@@ -30,18 +30,22 @@ func main() {
 
 	conn, err := internal.ConnectRabbitMQ(username, password, "localhost:5672", "customers")
 	failOnError(err, "failed to create new rabittmq connection")
+	// best practice but since it is blocking forever will never be called
 	defer conn.Close()
 
 	consumeConn, err := internal.ConnectRabbitMQ(username, password, "localhost:5672", "customers")
 	failOnError(err, "failed to create new rabittmq consume connection")
+	// best practice but since it is blocking forever will never be called
 	defer consumeConn.Close()
 
 	client, err := internal.NewRabbitMQClient(conn)
 	failOnError(err, "failed to create new rabbitmq client")
+	// best practice but since it is blocking forever will never be called
 	defer client.Close()
 
 	consumeClient, err := internal.NewRabbitMQClient(conn)
 	failOnError(err, "failed to create new rabbitmq consumeClient")
+	// best practice but since it is blocking forever will never be called
 	defer consumeClient.Close()
 
 	// Create Unnamed Queue which will generate a random name, set AutoDelete to True
