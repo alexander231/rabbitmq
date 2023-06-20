@@ -20,15 +20,19 @@ func main() {
 	}
 	username := os.Getenv("USERNAME")
 	password := os.Getenv("PASS")
+	port := os.Getenv("PORT")
+	ca_cert := os.Getenv("CA_CERTIFICATE")
+	client_cert := os.Getenv("CLIENT_CERTIFICATE")
+	client_key := os.Getenv("CLIENT_KEY")
 
-	conn, err := internal.ConnectRabbitMQ(username, password, "localhost:5672", "customers")
+	conn, err := internal.ConnectRabbitMQ(username, password, "localhost:"+port, "customers", ca_cert, client_cert, client_key)
 	if err != nil {
 		panic(err)
 	}
 	// best practice but since it is blocking forever will never be called
 	defer conn.Close()
 
-	publishConn, err := internal.ConnectRabbitMQ(username, password, "localhost:5672", "customers")
+	publishConn, err := internal.ConnectRabbitMQ(username, password, "localhost:"+port, "customers", ca_cert, client_cert, client_key)
 	if err != nil {
 		panic(err)
 	}

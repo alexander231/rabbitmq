@@ -2,8 +2,11 @@ package internal
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"log"
+	"os"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -19,9 +22,26 @@ type RabbitMQClient struct {
 }
 
 // ConnectRabbitMQ will spawn a Connection
-func ConnectRabbitMQ(username, password, host, vhost string) (*amqp.Connection, error) {
-	// Setup the Connection to RabbitMQ host using AMQP
-	conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s/%s", username, password, host, vhost))
+func ConnectRabbitMQ(username, password, host, vhost, caCert, clientCert, clientKey string) (*amqp.Connection, error) {
+	ca, err := os.ReadFile(caCert)
+	if err != nil {
+		return nil, err
+	}
+	// Load the key pair
+	cert, err := tls.LoadX509KeyPair(clientCert, clientKey)
+	if err != nil {
+		return nil, err
+	}
+	// Add the CA to the cert pool
+	rootCAs := x509.NewCertPool()
+	rootCAs.AppendCertsFromPEM(ca)
+
+	tlsConf := &tls.Config{
+		RootCAs:      rootCAs,
+		Certificates: []tls.Certificate{cert},
+	}
+	// Setup the Connection to RabbitMQ host using AMQPs and Apply TLS config
+	conn, err := amqp.DialTLS(fmt.Sprintf("amqps://%s:%s@%s/%s", username, password, host, vhost), tlsConf)
 	if err != nil {
 		return nil, err
 	}

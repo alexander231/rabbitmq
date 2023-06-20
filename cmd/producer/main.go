@@ -27,13 +27,17 @@ func main() {
 
 	username := os.Getenv("USERNAME")
 	password := os.Getenv("PASS")
+	port := os.Getenv("PORT")
+	ca_cert := os.Getenv("CA_CERTIFICATE")
+	client_cert := os.Getenv("CLIENT_CERTIFICATE")
+	client_key := os.Getenv("CLIENT_KEY")
 
-	conn, err := internal.ConnectRabbitMQ(username, password, "localhost:5672", "customers")
+	conn, err := internal.ConnectRabbitMQ(username, password, "localhost:"+port, "customers", ca_cert, client_cert, client_key)
 	failOnError(err, "failed to create new rabittmq connection")
 	// best practice but since it is blocking forever will never be called
 	defer conn.Close()
 
-	consumeConn, err := internal.ConnectRabbitMQ(username, password, "localhost:5672", "customers")
+	consumeConn, err := internal.ConnectRabbitMQ(username, password, "localhost:"+port, "customers", ca_cert, client_cert, client_key)
 	failOnError(err, "failed to create new rabittmq consume connection")
 	// best practice but since it is blocking forever will never be called
 	defer consumeConn.Close()
